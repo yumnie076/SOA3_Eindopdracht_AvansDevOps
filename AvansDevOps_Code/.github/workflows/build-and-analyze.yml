@@ -2,9 +2,9 @@ name: Build, Test & SonarCloud
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         java-version: '17'
-        distribution: 'temurin'
+        distribution: 'zulu'
 
     - name: Install SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
@@ -35,11 +35,11 @@ jobs:
 
     - name: SonarCloud Begin
       env:
-        SONAR_TOKEN: ${{ secrets.SOA3 }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
         dotnet sonarscanner begin \
-          /k:"JOUW_PROJECT_KEY" \
-          /o:"JOUW_ORG_KEY" \
+          /k:"yumnie076_SOA3_Eindopdracht_AvansDevOps" \
+          /o:"yumnie076" \
           /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.token="$SONAR_TOKEN" \
           /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
@@ -47,7 +47,7 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
 
-    - name: Test
+    - name: Test with Coverage
       run: |
         dotnet test --no-build --verbosity normal \
           --collect:"XPlat Code Coverage" \
@@ -55,5 +55,5 @@ jobs:
 
     - name: SonarCloud End
       env:
-        SONAR_TOKEN: ${{ secrets.SOA3 }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
