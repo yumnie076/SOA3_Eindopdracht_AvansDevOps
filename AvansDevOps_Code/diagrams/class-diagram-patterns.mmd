@@ -1,0 +1,83 @@
+---
+title: Design Patterns - Class Diagram
+---
+classDiagram
+    direction TB
+
+    %% STATE PATTERN - BacklogItem
+    class IBacklogItemState {
+        <<interface>>
+        +string Name
+        +MoveToTodo(item)
+        +MoveToDoing(item)
+        +MoveToReadyForTesting(item)
+        +MoveToTesting(item)
+        +MoveToTested(item)
+        +MoveToDone(item)
+    }
+    IBacklogItemState <|.. TodoState
+    IBacklogItemState <|.. DoingState
+    IBacklogItemState <|.. ReadyForTestingState
+    IBacklogItemState <|.. TestingState
+    IBacklogItemState <|.. TestedState
+    IBacklogItemState <|.. DoneState
+    BacklogItem --> IBacklogItemState : state
+
+    %% OBSERVER PATTERN
+    class INotificationPublisher {
+        <<interface>>
+        +Subscribe(subscriber)
+        +Unsubscribe(subscriber)
+        +NotifySubscribers(message)
+    }
+    class ISubscriber {
+        <<interface>>
+        +Update(message)
+    }
+    ISubscriber <|.. EmailSubscriber
+    ISubscriber <|.. SlackSubscriber
+    INotificationPublisher <|.. BacklogItem
+    INotificationPublisher <|.. Sprint
+    INotificationPublisher --> ISubscriber : notifies
+
+    %% FACTORY METHOD PATTERN
+    class ISprintFactory {
+        <<interface>>
+        +CreateSprint(name, startDate, endDate) Sprint
+    }
+    ISprintFactory <|.. ReviewSprintFactory
+    ISprintFactory <|.. ReleaseSprintFactory
+    ReviewSprintFactory ..> ReviewSprint : creates
+    ReleaseSprintFactory ..> ReleaseSprint : creates
+
+    %% COMPOSITE PATTERN
+    class IPipelineComponent {
+        <<interface>>
+        +string Name
+        +Execute() bool
+    }
+    IPipelineComponent <|.. PipelineAction
+    IPipelineComponent <|.. DevelopmentPipeline
+    DevelopmentPipeline o--> IPipelineComponent : components
+
+    %% STRATEGY PATTERN
+    class IReportExportStrategy {
+        <<interface>>
+        +string FormatName
+        +Export(content) string
+    }
+    IReportExportStrategy <|.. PdfExportStrategy
+    IReportExportStrategy <|.. PngExportStrategy
+    SprintReport --> IReportExportStrategy : exportStrategy
+
+    %% DECORATOR PATTERN
+    class IReportComponent {
+        <<interface>>
+        +Render() string
+    }
+    IReportComponent <|.. ReportBody
+    IReportComponent <|.. ReportDecorator
+    ReportDecorator <|-- HeaderDecorator
+    ReportDecorator <|-- FooterDecorator
+    ReportDecorator --> IReportComponent : wrappedComponent
+    SprintReport --> IReportComponent : reportComponent

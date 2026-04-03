@@ -1,0 +1,56 @@
+name: Build, Test & SonarCloud Analysis
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for SonarCloud
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Install SonarCloud scanner
+      run: dotnet tool install --global dotnet-sonarscanner
+
+    - name: Install Coverlet
+      run: dotnet tool install --global coverlet.console
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Begin SonarCloud Analysis
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        dotnet sonarscanner begin \
+          /k:"avans-devops" \
+          /o:"your-org" \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.token="${SONAR_TOKEN}" \
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+
+    - name: Build
+      run: dotnet build --no-restore
+
+    - name: Run Tests with Coverage
+      run: |
+        dotnet test --no-build \
+          --collect:"XPlat Code Coverage" \
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+    - name: End SonarCloud Analysis
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"

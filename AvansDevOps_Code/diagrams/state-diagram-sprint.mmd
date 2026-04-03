@@ -1,0 +1,30 @@
+---
+title: Sprint State Diagram
+---
+stateDiagram-v2
+    [*] --> Created : Sprint created
+
+    Created --> InProgress : Start sprint\n[properties locked]
+
+    InProgress --> Finished : Time is up
+
+    state sprint_type <<choice>>
+    Finished --> sprint_type
+
+    sprint_type --> Review : ReviewSprint
+    sprint_type --> Releasing : ReleaseSprint\n[pipeline starts]
+
+    Review --> Closed : Close\n[requires review summary]
+    Closed --> [*]
+
+    Releasing --> Released : Pipeline success\n[notify SM + PO]
+    Releasing --> Cancelled : Pipeline failed\n[notify SM + PO]
+
+    Cancelled --> Releasing : Retry release\n[SM decision]
+
+    Released --> [*]
+
+    note right of Created : Can modify properties\nCan add backlog items
+    note right of InProgress : Properties locked\nNo backlog item changes
+    note left of Releasing : Pipeline executing\nNo modifications allowed
+    note right of Cancelled : SM can retry\nor leave cancelled

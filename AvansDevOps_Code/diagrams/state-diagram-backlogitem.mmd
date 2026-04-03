@@ -1,0 +1,24 @@
+---
+title: BacklogItem State Diagram
+---
+stateDiagram-v2
+    [*] --> Todo : Item created
+
+    Todo --> Doing : Developer picks up
+
+    Doing --> ReadyForTesting : Developer marks ready\n[notify testers]
+
+    ReadyForTesting --> Testing : Tester starts testing
+    ReadyForTesting --> Todo : Tester rejects\n[notify scrum master]
+
+    Testing --> Tested : Test passed
+    Testing --> Todo : Test failed\n[notify scrum master]
+
+    Tested --> Done : DoD met + all activities done\n[notify team]
+    Tested --> ReadyForTesting : DoD not met\n[notify team]
+
+    Done --> Todo : Regression found\n[notify team]
+
+    note right of Todo : Starting state\nfor all backlog items
+    note right of Done : Final state\n(can reopen)
+    note left of ReadyForTesting : Testers get\nnotified here

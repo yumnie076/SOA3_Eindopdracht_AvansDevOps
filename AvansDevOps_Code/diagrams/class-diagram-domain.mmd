@@ -1,0 +1,98 @@
+---
+title: Avans DevOps - Domain Model Class Diagram
+---
+classDiagram
+    direction TB
+
+    class Project {
+        +string Name
+        +Person ProductOwner
+        +List~BacklogItem~ ProductBacklog
+        +List~Sprint~ Sprints
+        +Repository? Repository
+        +AddBacklogItem(title, description, storyPoints) BacklogItem
+        +CreateSprint(factory, name, startDate, endDate) Sprint
+    }
+
+    class Person {
+        +string Name
+        +string Email
+    }
+
+    class SprintMember {
+        +Person Person
+        +Role Role
+    }
+
+    class BacklogItem {
+        +string Title
+        +string Description
+        +int StoryPoints
+        +Person? AssignedDeveloper
+        +IBacklogItemState State
+        +List~Activity~ Activities
+        +bool IsClosed
+        +MoveToDoing()
+        +MoveToReadyForTesting()
+        +MoveToTesting()
+        +MoveToTested()
+        +MoveToDone()
+        +MoveToTodo()
+        +Subscribe(subscriber)
+        +NotifySubscribers(message)
+    }
+
+    class Activity {
+        +string Title
+        +string Description
+        +Person? AssignedDeveloper
+        +bool IsDone
+        +MarkDone()
+    }
+
+    class Sprint {
+        <<abstract>>
+        +string Name
+        +DateTime StartDate
+        +DateTime EndDate
+        +ISprintState State
+        +List~BacklogItem~ BacklogItems
+        +List~SprintMember~ Members
+        +DevelopmentPipeline? Pipeline
+        +Start()
+        +Finish()
+        +Close()
+        +Subscribe(subscriber)
+        +NotifySubscribers(message)
+    }
+
+    class ReviewSprint {
+        +bool HasReviewSummary
+        +string? ReviewSummaryDocument
+        +UploadReviewSummary(document)
+    }
+
+    class ReleaseSprint {
+        +SetPipeline(pipeline)
+    }
+
+    class Role {
+        <<enumeration>>
+        Developer
+        ScrumMaster
+        ProductOwner
+        Tester
+        LeadDeveloper
+    }
+
+    Project "1" --> "*" BacklogItem : productBacklog
+    Project "1" --> "*" Sprint : sprints
+    Project "1" --> "1" Person : productOwner
+    Sprint "1" --> "*" BacklogItem : backlogItems
+    Sprint "1" --> "*" SprintMember : members
+    BacklogItem "1" --> "*" Activity : activities
+    BacklogItem --> Person : assignedDeveloper
+    SprintMember --> Person : person
+    SprintMember --> Role : role
+    Sprint <|-- ReviewSprint
+    Sprint <|-- ReleaseSprint
