@@ -80,7 +80,7 @@ public class RepositoryTests
         featureBranch.AddCommit("Add TodoState", dev);
         featureBranch.AddCommit("Add DoingState", dev);
 
-        Assert.Equal(3, repo.Branches.Count); // main + feature
+        Assert.Equal(2, repo.Branches.Count); // main + feature
         Assert.Equal(2, featureBranch.Commits.Count);
         Assert.NotNull(repo.GetBranch("feature/backlog-states"));
     }
