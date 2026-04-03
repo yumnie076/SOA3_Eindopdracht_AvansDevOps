@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main, master ]
 
+defaults:
+  run:
+    working-directory: AvansDevOps_Code
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,6 +32,7 @@ jobs:
         distribution: 'zulu'
 
     - name: Install SonarScanner
+      working-directory: .
       run: dotnet tool install --global dotnet-sonarscanner
 
     - name: Restore
